@@ -1,6 +1,36 @@
-config { type: "view" }
+config {
+  type: "view",
+  materialized: "table",
+  name: "covid19_mx_stage"
+}
 
--- Use the ref() function to manage dependencies.
--- Learn more about ref() and other built in functions here: https://cloud.google.com/dataform/docs/dataform-core
+SELECT 
+  location_key,
+  date,
+  country_name,
+  aggregation_level,
 
-SELECT test from ${ref("first_view")}
+  -- Calculate new metrics (examples)
+  new_confirmed / population AS new_confirmed_per_capita,
+  cumulative_deceased / cumulative_confirmed AS case_fatality_rate,
+
+  -- Aggregate metrics by country and date (example)
+  SUM(new_confirmed) OVER (PARTITION BY country_name, date) AS total_new_confirmed_by_country,
+
+  -- Include relevant demographic and economic data
+  population,
+  population_density,
+  gdp_per_capita_usd,
+  human_development_index,
+
+  -- Include relevant policy data (examples)
+  school_closing,
+  workplace_closing,
+  restrictions_on_gatherings 
+
+FROM 
+  ${ref("covid_mx_source")}  -- Reference the covid_mx_source view
+
+WHERE 
+  -- Filter out any unwanted aggregation levels or specific locations if needed
+  aggregation_level = 0  -- Example: Focus on country-level data

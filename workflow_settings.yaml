@@ -1,5 +1,5 @@
 defaultProject: toc-vertex
-defaultLocation: US
-defaultDataset: dataform
+defaultLocation: uswest-1
+defaultDataset: dataform_demo
 defaultAssertionDataset: dataform_assertions
 dataformCoreVersion: 3.0.0
