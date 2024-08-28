@@ -1,0 +1,42 @@
+config {
+  type: "table",
+  name: "covid_mx_state"
+}
+
+SELECT 
+  location_key,
+  date,
+  -- Extract month and year for time-based analysis
+  EXTRACT(MONTH FROM date) AS month,
+  EXTRACT(YEAR FROM date) AS year,
+
+  -- Aggregate metrics by location and date (examples)
+  SUM(new_confirmed) OVER (PARTITION BY location_key ORDER BY date) AS cumulative_confirmed_by_location,
+  SUM(new_deceased) OVER (PARTITION BY location_key ORDER BY date) AS cumulative_deceased_by_location,
+
+  -- Calculate 7-day rolling averages (examples)
+  AVG(new_confirmed) OVER (PARTITION BY location_key ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS new_confirmed_7day_avg,
+  AVG(new_deceased) OVER (PARTITION BY location_key ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS new_deceased_7day_avg,
+
+  -- Calculate growth rates (examples)
+  (new_confirmed - LAG(new_confirmed) OVER (PARTITION BY location_key ORDER BY date)) / LAG(new_confirmed) OVER (PARTITION BY location_key ORDER BY date) AS new_confirmed_growth_rate,
+
+  -- Include original metrics and other relevant data
+  new_confirmed,
+  new_deceased,
+  new_confirmed_per_capita,
+  case_fatality_rate,
+  total_new_confirmed_by_country,
+  population,
+  population_density,
+  gdp_per_capita_usd,
+  human_development_index,
+  school_closing,
+  workplace_closing,
+  restrictions_on_gatherings
+
+FROM 
+  ${ref("covid19_mx_stage")}
+
+WHERE 
+  aggregation_level = 1  -- Focus on aggregation level 1
