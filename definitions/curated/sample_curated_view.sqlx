@@ -1,6 +1,6 @@
 config {
-  type: "table",
-  name: "covid_mx"
+  type: "view",
+  name: "covid_mx_state"
 }
 
 SELECT 
