@@ -13,7 +13,7 @@ on:
 jobs:
 
   deploy_dags:
-    name: Deploy DAGs and Dataform Workflow to ${{ inputs.environment }}
+    name: Deploy DAGs to ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: 
       name: ${{ inputs.environment }}
@@ -58,10 +58,6 @@ jobs:
     - name: Set up Dataform CLI
       run: |
         npm install -g @dataform/cli && echo '{"projectId": "${{ vars.DATAFORM_PROJECT_ID }}","location": "${{ vars.DATAFORM_REGION }}"}' > .df-credentials.json
-
-    - id: compile_dataform
-      name: Dataform Workflow Dry-run
-      run: dataform run --dry-run
 
     - name: Deploy Dataform workflow
       if: steps.compile_dataform.outcome == 'success'
