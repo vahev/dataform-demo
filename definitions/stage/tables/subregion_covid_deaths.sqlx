@@ -1,0 +1,11 @@
+config {
+  type: "table",
+  name: "subregion_covid_deaths",
+  description: "Aggregated COVID-19 death data by subregion in Mexico, derived from the 'mexico_covid_data' table. Shows the cumulative number of deaths in each subregion."
+}
+
+SELECT
+  subregion1_name,
+  SUM(cumulative_deceased) AS cumulative_deceased
+FROM ${ref("mexico_covid_data")}
+GROUP BY subregion1_name

@@ -1,0 +1,20 @@
+config {
+  type: "table",
+  name: "subregion_demographics",
+  description: "Aggregated demographic data by subregion in Mexico, derived from the 'mexico_covid_data' table. Provides insights into the population structure of each subregion."
+}
+
+SELECT
+  subregion1_name,
+  SUM(population) AS total_population,
+  SUM(population_age_00_09) AS population_age_00_09,
+  SUM(population_age_10_19) AS population_age_10_19,
+  SUM(population_age_20_29) AS population_age_20_29,
+  SUM(population_age_30_39) AS population_age_30_39,
+  SUM(population_age_40_49) AS population_age_40_49,
+  SUM(population_age_50_59) AS population_age_50_59,
+  SUM(population_age_60_69) AS population_age_60_69,
+  SUM(population_age_70_79) AS population_age_70_79,
+  SUM(population_age_80_and_older) AS population_age_80_and_older
+FROM ${ref("mexico_covid_data")}
+GROUP BY subregion1_name

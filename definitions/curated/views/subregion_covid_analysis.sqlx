@@ -1,0 +1,23 @@
+config {
+  type: "view",
+  name: "subregion_covid_analysis",
+  description: "Combines demographic and death data by subregion in Mexico, and calculates the COVID-19 death rate per 1,000 people. Provides a comprehensive view for analyzing the impact of COVID-19 deaths in relation to the population structure."
+}
+
+SELECT
+  d.subregion1_name,
+  d.total_population,
+  d.population_age_00_09,
+  d.population_age_10_19,
+  d.population_age_20_29,
+  d.population_age_30_39,
+  d.population_age_40_49,
+  d.population_age_50_59,
+  d.population_age_60_69,
+  d.population_age_70_79,
+  d.population_age_80_and_older,
+  c.cumulative_deceased,
+  ROUND((c.cumulative_deceased / d.total_population) * 1000, 2) AS death_rate_per_1000
+FROM ${ref("subregion_demographics")} d
+JOIN ${ref("subregion_covid_deaths")} c
+ON d.subregion1_name = c.subregion1_name

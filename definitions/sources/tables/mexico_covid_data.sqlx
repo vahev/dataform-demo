@@ -1,0 +1,85 @@
+js { const { covidMxAssertions } = require("../assertions/assertions.js") }
+
+/*
+Owner: data_team@tocteam.com
+*/
+
+config {
+    type: "table",
+    name: "mexico_covid_data",
+    description: "Filtered COVID-19 data for Mexico from the BigQuery public dataset, containing information on cases, deaths, vaccinations, demographics, and other relevant factors.",
+    columns: {
+        subregion1_name: "Name of the subregion (e.g., state or province) within Mexico.",
+        population: "Total population of the subregion.",
+        cumulative_deceased: "Total number of COVID-19 deaths recorded in the subregion up to the latest date in the dataset.",
+        population_age_60_69: "Number of people in the subregion aged between 60 and 69 years old.",
+        diabetes_prevalence: "Percentage of the population in the subregion with diabetes."
+    },
+    tags: ["covid19", "mexico", "public_data"],
+    assertions: {
+    nonNull: ["country_code", "country_name"],
+    rowConditions: [
+        "LENGTH(country_code) <= 3"
+        ]
+    }
+}
+
+SELECT
+  country_code,
+  country_name,
+  location_key,
+  subregion1_code,
+  subregion1_name,
+  average_temperature_celsius,
+  minimum_temperature_celsius,
+  maximum_temperature_celsius,
+  rainfall_mm,
+  relative_humidity,
+  aggregation_level,
+  gdp_usd,
+  gdp_per_capita_usd,
+  area_sq_km,
+  population,
+  population_male,
+  population_female,
+  population_age_00_09,
+  population_age_10_19,
+  population_age_20_29,
+  population_age_30_39,
+  population_age_40_49,
+  population_age_50_59,
+  population_age_60_69,
+  population_age_70_79,
+  population_age_80_and_older,
+  life_expectancy,
+  adult_male_mortality_rate,
+  adult_female_mortality_rate,
+  new_confirmed,
+  new_deceased,
+  new_persons_vaccinated,
+  new_persons_fully_vaccinated,
+  new_recovered,
+  new_hospitalized_patients,
+  new_intensive_care_patients,
+  cumulative_confirmed,
+  cumulative_deceased,
+  cumulative_tested,
+  cumulative_persons_vaccinated,
+  cumulative_persons_fully_vaccinated,
+  cumulative_recovered,
+  cumulative_hospitalized_patients,
+  cumulative_intensive_care_patients,
+  smoking_prevalence,
+  diabetes_prevalence,
+  nurses_per_1000,
+  physicians_per_1000,
+  health_expenditure_usd,
+  mobility_retail_and_recreation,
+  mobility_grocery_and_pharmacy,
+  mobility_parks,
+  mobility_transit_stations,
+  mobility_workplaces,
+  mobility_residential
+FROM
+  `bigquery-public-data.covid19_open_data.covid19_open_data`
+WHERE country_code = 'MX'
