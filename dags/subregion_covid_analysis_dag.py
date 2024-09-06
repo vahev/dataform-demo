@@ -43,8 +43,8 @@ with DAG(
             'git_commitish': Variable.get(f'dataform_environment'),
         }
 
-    create_compilation_result = DataformCreateCompilationResultOperator(
-        task_id="create_compilation_result",
+    create_compilation = DataformCreateCompilationResultOperator(
+        task_id="create_compilation",
         project_id=PROJECT_ID,
         region=REGION,
         repository_id=REPOSITORY_ID,
@@ -59,8 +59,10 @@ with DAG(
         region=REGION,
         repository_id=REPOSITORY_ID,
         workflow_invocation={
-            "compilation_result": "{{ task_instance.xcom_pull('create_compilation_result')['name'] }}"
+            "compilation_result": (
+                "{{ task_instance.xcom_pull('create_compilation')['name'] }}"
+            )
         },
     )
 
-    create_compilation_result >> create_workflow_invocation
+    create_compilation >> create_workflow_invocation
