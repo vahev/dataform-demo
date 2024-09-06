@@ -15,8 +15,6 @@ jobs:
   deploy:
     name: Deploy DAGs and Dataform Workflow to ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    container:
-      image: node:latest
     environment: 
       name: ${{ inputs.environment }}
 
