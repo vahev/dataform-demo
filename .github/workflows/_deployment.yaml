@@ -60,5 +60,4 @@ jobs:
         npm install -g @dataform/cli && echo '{"projectId": "${{ vars.DATAFORM_PROJECT_ID }}","location": "${{ vars.DATAFORM_REGION }}"}' > .df-credentials.json
 
     - name: Deploy Dataform workflow
-      if: steps.compile_dataform.outcome == 'success'
       run: dataform run

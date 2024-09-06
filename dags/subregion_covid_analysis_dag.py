@@ -1,10 +1,10 @@
+import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.google.cloud.operators.dataform import (
     DataformCreateWorkflowInvocationOperator,
     DataformCreateCompilationResultOperator
 )
-from airflow.models import Variable
 
 
 default_args = {
@@ -27,34 +27,21 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    def get_dataform_config():
-        """
-        Retrieves Dataform configuration based on the environment.
-        """
-        return {
-            'project_id': Variable.get('dataform_project_id'),
-            'region': Variable.get('dataform_region'),
-            'repository_id': Variable.get('dataform_repository_id'),
-            'git_commitish': Variable.get('dataform_environment'),
-        }
-
-    dataform_config = get_dataform_config()
-
     create_compilation = DataformCreateCompilationResultOperator(
         task_id="create_compilation",
-        project_id=dataform_config.get('project_id'),
-        region=dataform_config.get('region'),
-        repository_id=dataform_config.get('repository_id'),
+        project_id=os.getenv('GCP_PROJECT'),
+        region=os.getenv('dataform_region'),
+        repository_id=os.getenv('dataform_repository_id'),
         compilation_result={
-            "git_commitish": dataform_config.get('git_commitish'),
+            "git_commitish": os.getenv('dataform_environment'),
         },
     )
 
     create_workflow_invocation = DataformCreateWorkflowInvocationOperator(
         task_id="create_workflow_invocation",
-        project_id=dataform_config.get('project_id'),
-        region=dataform_config.get('region'),
-        repository_id=dataform_config.get('repository_id'),
+        project_id=os.getenv('GCP_PROJECT'),
+        region=os.getenv('dataform_region'),
+        repository_id=os.getenv('dataform_repository_id'),
         workflow_invocation={
             "compilation_result": (
                 "{{ task_instance.xcom_pull('create_compilation')['name'] }}"
