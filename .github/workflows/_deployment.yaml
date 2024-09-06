@@ -12,7 +12,7 @@ on:
 
 jobs:
 
-  deploy:
+  deploy_dags:
     name: Deploy DAGs and Dataform Workflow to ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: 
@@ -33,6 +33,27 @@ jobs:
 
     - name: Deploy DAGs 
       run: gcloud storage cp ./dags/*.py "${{ vars.GCS_DAGS_URL }}"
+    
+  deploy_dataform:
+    name: Deploy Dataform Workflow to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    container:
+      image: node:latest
+    environment: 
+      name: ${{ inputs.environment }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.ref }}
+
+    - id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        create_credentials_file: true
+        workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
     
     - name: Set up Dataform CLI
       run: |
