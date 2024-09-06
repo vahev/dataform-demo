@@ -1,0 +1,21 @@
+name: Development CI Process
+run-name: Testing GitHub actions 🚀
+on:
+
+  pull_request:
+    branches: [prod]
+    types: [opened, synchronize, reopened]
+
+jobs:
+
+  quality_checks:
+    name: PR Checks
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/_checks.yaml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      environment: ${{ github.base_ref }}  # Dynamically set environment based on target branch
+      ref: ${{ github.sha }}
+    secrets: inherit

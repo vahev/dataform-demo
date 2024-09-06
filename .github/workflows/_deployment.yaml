@@ -1,0 +1,47 @@
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: Name of the target environment.    
+      ref:  
+        type: string
+        required: true
+        description: The tag or SHA to checkout.
+
+jobs:
+
+  deploy:
+    name: Deploy DAGs and Dataform Workflow to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ inputs.environment }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.ref }}
+
+    - id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+        service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+    - name: Deploy DAGs 
+      run: |
+            gcloud storage cp ./dags/[!test]*.py "${{ vars.GCS_DAGS_URL }}"
+    
+    - name: Set up Dataform CLI
+      run: |
+        npm install -g @dataform/cli && echo '{"projectId": "${{ vars.DATAFORM_PROJECT_ID }}","location": "${{ vars.DATAFORM_REGION }}"}' > .df-credentials.json
+
+    - id: compile_dataform
+      name: Dataform Workflow Dry-run
+      run: dataform run --dry-run
+
+    - name: Deploy Dataform workflow
+      if: steps.compile_dataform.outcome == 'success'
+      run: dataform run

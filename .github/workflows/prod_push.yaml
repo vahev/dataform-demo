@@ -1,0 +1,29 @@
+name: Prod Deploy Process
+run-name: Prod Deployment 🚀
+on:
+  push:
+    branches: [prod]
+
+jobs:
+
+  quality_checks:
+    name: PR Checks
+    uses: ./.github/workflows/_checks.yaml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      environment: ${{ github.base_ref }}  # Dynamically set environment based on target branch
+      ref: ${{ github.sha }}
+    secrets: inherit
+
+  deployment:
+    uses: ./.github/workflows/_deployment.yaml
+    needs: quality_checks
+    permissions: 
+      id-token: write
+      contents: read
+    with: 
+      environment: prod
+      ref: ${{ github.sha }}
+    secrets: inherit
